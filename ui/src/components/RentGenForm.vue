@@ -90,7 +90,10 @@
         </a-upload>
       </a-form-item>
 
-      <a-form-item :wrapper-col="{ offset: 4, span: 16 }">
+      <a-form-item :wrapper-col="{
+        lg: { offset: 4, span: 16 },
+        xs: { span: 24, offset: 0 },
+        sm: { span: 16, offset: 8 }}">
         <a-button type="primary" shape="round" html-type="submit"
           >Generate Receipts</a-button
         >
