@@ -67,6 +67,29 @@
         <a-input v-model:value="formState.userEmail" />
       </a-form-item>
 
+      <a-form-item name="generateType" label="Generate Receipt">
+        <a-radio-group v-model:value="formState.generateType">
+          <a-radio value="SINGLE">Single</a-radio>
+          <a-radio value="RECEIPT_PER_MONTH">Receipt per Month</a-radio>
+        </a-radio-group>
+      </a-form-item>
+
+      <a-form-item name="ownerSignature" label="Owner's Signature" extra="">
+        <a-upload
+          v-model:fileList="formState.ownerSignature"
+          name="logo"
+          :max-count="1"
+          list-type="fileList"
+          :before-upload="beforeUpload"
+          @remove="handleRemove"
+        >
+          <a-button class="file-upload-btn">
+            <template #icon><UploadOutlined /></template>
+            Click to Select file
+          </a-button>
+        </a-upload>
+      </a-form-item>
+
       <a-form-item :wrapper-col="{ offset: 4, span: 16 }">
         <a-button type="primary" shape="round" html-type="submit"
           >Generate Receipts</a-button
@@ -76,7 +99,7 @@
   </a-card>
 </template>
 <script>
-import { defineComponent, reactive } from "vue";
+import { defineComponent, reactive, ref } from "vue";
 import moment from "moment";
 import { message } from "ant-design-vue";
 
@@ -91,6 +114,8 @@ const formatter = new Intl.NumberFormat("en-US", {
 
 export default defineComponent({
   setup() {
+    const fileList = ref([]);
+
     const formState = reactive({
       userName: "",
       ownerName: "",
@@ -99,7 +124,63 @@ export default defineComponent({
       ownersPan: "",
       userEmail: null,
       duration: null,
+      generateType: "SINGLE",
+      ownerSignature: null,
     });
+
+    const getFileName = (receipts) => {
+      let fileName = "";
+      if (receipts.length == 1) {
+        fileName = receipts[0].receiptMonth;
+      } else if (receipts.length > 1) {
+        fileName =
+          receipts[0].receiptMonth + "-" + receipts.at(-1).receiptMonth;
+      }
+      return fileName.replaceAll(" ", "-") + "-rent-receipt";
+    };
+
+    const uploading = ref(false);
+
+    const handleRemove = (file) => {
+      fileList.value = null;
+    };
+
+    const beforeUpload = (file) => {
+      console.log(file);
+      fileList.value = file;
+      return false;
+    };
+
+    const downloadReceipts = async (receipts, base64OwnerSignature) => {
+      await fetch(process.env.VUE_APP_API_BASE_URL + "/generate-receipts", {
+        method: "POST",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ receipts, ownerSignature: base64OwnerSignature}),
+      })
+        .then((res) => res.blob())
+        .then((blob) => {
+          if (!blob) return;
+          // const file = window.URL.createObjectURL(blob);
+          // window.location.assign(file);
+          const url = window.URL.createObjectURL(blob);
+          const a = document.createElement("a");
+          a.href = url;
+          a.download = getFileName(receipts);
+          document.body.appendChild(a); // we need to append the element to the dom -> otherwise it will not work in firefox
+          a.click();
+          a.remove(); //afterwards we remove the element again
+        });
+    };
+
+    const generateReceiptPerMonth = async (receipts, base64OwnerSignature) => {
+      for (const receipt of receipts) {
+        await downloadReceipts([receipt], base64OwnerSignature);
+      }
+    };
+
     const onFinish = async (values) => {
       console.log("Success:", values);
 
@@ -111,45 +192,64 @@ export default defineComponent({
       endDate.add(1, "month");
 
       message.loading({ content: "Generating Receipts...", messageKey });
+      let base64OwnerSignature;
+      let ownerSignature = values.ownerSignature ? values.ownerSignature.at(0) : null;
+      if (ownerSignature) {
+        console.log("next");
+        base64OwnerSignature = "data:" + ownerSignature.type + ";base64,";
+
+       const base64Gen = () => new Promise((resolve, reject) => {
+        let reader = new FileReader();
+        reader.onload = function () {
+          // base64OwnerSignature += reader.result
+          //   .replace("data:", "")
+          //   .replace(/^.+,/, "");
+          resolve(reader.result
+            .replace("data:", "")
+            .replace(/^.+,/, ""));
+        };
+        reader.readAsDataURL(ownerSignature.originFileObj)
+       });
+
+        base64OwnerSignature += await base64Gen();
+        console.log(base64OwnerSignature);
+
+        // reader.onload = function () {
+        //   base64OwnerSignature += reader.result
+        //     .replace("data:", "")
+        //     .replace(/^.+,/, "");
+        //   console.log(base64OwnerSignature);
+        // };
+        // reader.readAsDataURL(ownerSignature.originFileObj);
+      }
+
+      const receipts = [];
 
       while (startDate.isBefore(endDate)) {
         console.log(startDate.format("MMM YYYY"));
-        await fetch(process.env.VUE_APP_API_BASE_URL + "/generate-receipts", {
-          method: "POST",
-          headers: {
-            Accept: "application/json",
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            userName: values.userName,
-            ownerName: values.ownerName,
-            address: values.address,
-            monthlyRent: formatter
-              .format(values.monthlyRent)
-              .replace("INR", "Rs."),
-            ownersPan: values.ownersPan,
-            userEmail: values.userEmail,
-            receiptMonth: startDate.format("MMM YYYY"),
-            startDate: startDate.format("DD MMM YYYY"),
-            endDate: moment(startDate).endOf("month").format("DD MMM YYYY"),
-            receiptDate: moment(startDate)
-              .add(1, "month")
-              .format("DD MMM YYYY"),
-          }),
-        })
-          .then((res) => res.blob())
-          .then((blob) => {
-            // const file = window.URL.createObjectURL(blob);
-            // window.location.assign(file);
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement("a");
-            a.href = url;
-            a.download = "filename.pdf";
-            document.body.appendChild(a); // we need to append the element to the dom -> otherwise it will not work in firefox
-            a.click();
-            a.remove(); //afterwards we remove the element again
-          });
+
+        receipts.push({
+          userName: values.userName,
+          ownerName: values.ownerName,
+          address: values.address,
+          monthlyRent: formatter
+            .format(values.monthlyRent)
+            .replace("INR", "Rs."),
+          ownersPan: values.ownersPan,
+          userEmail: values.userEmail,
+          receiptMonth: startDate.format("MMM YYYY"),
+          startDate: startDate.format("DD MMM YYYY"),
+          endDate: moment(startDate).endOf("month").format("DD MMM YYYY"),
+          receiptDate: moment(startDate).add(1, "month").format("DD MMM YYYY"),
+        });
+
         startDate.add(1, "month");
+      }
+
+      if (values.generateType == "SINGLE") {
+        await downloadReceipts(receipts, base64OwnerSignature);
+      } else if (values.generateType == "RECEIPT_PER_MONTH") {
+        await generateReceiptPerMonth(receipts, base64OwnerSignature);
       }
 
       message.success({
@@ -157,9 +257,8 @@ export default defineComponent({
         messageKey,
         duration: 2,
       });
-
-      //   console.log(await generatePDF.json());
     };
+
     const onFinishFailed = (errorInfo) => {
       console.log("Failed:", errorInfo);
     };
@@ -167,6 +266,8 @@ export default defineComponent({
       formState,
       onFinish,
       onFinishFailed,
+      beforeUpload,
+      handleRemove,
     };
   },
 });
@@ -197,6 +298,16 @@ export default defineComponent({
 
 .ant-picker {
   width: 100%;
+}
+.file-upload-btn {
+  margin-top: 0px !important;
+  width: 100% !important;
+}
+/deep/ .ant-upload-list-item-name {
+  text-align: left !important;
+}
+/deep/ .ant-upload {
+  width: 100% !important;
 }
 
 @media screen and (max-width: 600px) {

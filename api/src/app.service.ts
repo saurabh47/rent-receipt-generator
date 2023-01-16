@@ -10,24 +10,30 @@ export class AppService {
     return { message: 'Hello World!' };
   }
 
-  async generateReceipts(details) {
-    console.log(details);//
+  private saveDetail(receipt) {
+    //TODO: Save details to DB
+    // Also store start & end to selected duration
+    console.log({
+      "userName": receipt.userName,
+      "ownerName": receipt.ownerName,
+      "ownersPan": receipt.ownersPan,
+      "startDate": receipt.startDate,
+      "endDate": receipt.endDate,
+      "receiptDate": receipt.receiptDate,
+      "receiptMonth": receipt.receiptMonth,
+      "monthlyRent": receipt.monthlyRent,
+      "address": receipt.address,
+      "pan": receipt.pan
+    });
+  }
 
-    const generateReceiptRequest = await this.httpService.post('https://pdfgen.app/api/generate?templateId=5648470',
+  async generateReceipts(details: { receipts: any[], ownerSignature: string}) {
+    
+    this.saveDetail(details.receipts[0]);
+    
+    const generateReceiptRequest = await this.httpService.post('https://pdfgen.app/api/generate?templateId=4514529',
       {
-        "data":
-        {
-          "userName": details.userName,
-          "ownerName": details.ownerName,
-          "ownersPan": details.ownersPan,
-          "startDate": details.startDate,
-          "endDate": details.endDate,
-          "receiptDate": details.receiptDate,
-          "receiptMonth": details.receiptMonth,
-          "monthlyRent": details.monthlyRent,
-          "address": details.address,
-          "pan": details.pan
-        }
+        "data": details
       }, {
       headers: {
         "api_key": "noLxnIYLCn4EZJs4JH8u3"
