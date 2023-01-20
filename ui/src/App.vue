@@ -51,8 +51,7 @@ export default {
   name: "App",
   components: {
     RentGenForm,
-    StarFilled,
-    StarTwoTone,
+    StarFilled
   },
 };
 </script>
