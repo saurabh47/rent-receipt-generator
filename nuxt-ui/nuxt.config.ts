@@ -12,7 +12,7 @@ export default defineNuxtConfig({
     plugins: ['@/plugins/antd'],
     runtimeConfig: {
         public: {
-            apiBase: '',
+            apiBase: '/api',
         }
     }
 })
