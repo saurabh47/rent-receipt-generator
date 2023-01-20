@@ -46,19 +46,19 @@
 <script>
 import RentGenForm from "./components/RentGenForm.vue";
 import { StarFilled } from "@ant-design/icons-vue";
+import 'ant-design-vue/dist/antd.css';
 
 export default {
   name: "App",
   components: {
     RentGenForm,
-    StarFilled,
-    StarTwoTone,
+    StarFilled
   },
 };
 </script>
 
 <style>
-#app {
+#__nuxt {
   font-family: Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
