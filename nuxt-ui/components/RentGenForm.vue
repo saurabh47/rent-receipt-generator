@@ -159,8 +159,8 @@ export default defineComponent({
       const config = useRuntimeConfig()
 
       console.log(config);
-
-      await fetch(config.baseURL + "/generate-receipts", {
+      
+      await fetch(config.apiBase + "/generate-receipts", {
         method: "POST",
         headers: {
           Accept: "application/json",

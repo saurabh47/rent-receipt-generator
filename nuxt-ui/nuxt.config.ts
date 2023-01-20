@@ -12,7 +12,7 @@ export default defineNuxtConfig({
     plugins: ['@/plugins/antd'],
     runtimeConfig: {
         public: {
-            baseURL: process.env.VUE_APP_API_BASE_URL,
+            apiBase: '',
         }
     }
 })
