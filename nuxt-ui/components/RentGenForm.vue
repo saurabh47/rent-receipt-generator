@@ -15,6 +15,7 @@
         :rules="[{ required: true, message: 'Please enter Monthly Rent!' }]"
       >
         <a-input-number
+          aria-label="Please enter Monthly Rent!"
           style="width: 100%"
           :min="1"
           v-model:value="formState.monthlyRent"
@@ -29,7 +30,7 @@
         name="userName"
         :rules="[{ required: true, message: 'Please enter Your Name!' }]"
       >
-        <a-input v-model:value="formState.userName" />
+        <a-input v-model:value="formState.userName" aria-label="Please enter Your Name!" />
       </a-form-item>
 
       <a-form-item
@@ -37,7 +38,7 @@
         name="ownerName"
         :rules="[{ required: true, message: 'Please enter Owner Name!' }]"
       >
-        <a-input v-model:value="formState.ownerName" />
+        <a-input v-model:value="formState.ownerName" aria-label="Please enter Owner Name!" />
       </a-form-item>
 
       <a-form-item
@@ -45,30 +46,30 @@
         name="address"
         :rules="[{ required: true, message: 'Please enter Address!' }]"
       >
-        <a-textarea v-model:value="formState.address" />
+        <a-textarea v-model:value="formState.address" aria-label="Please enter Address!" />
       </a-form-item>
 
       <a-form-item label="Owner's PAN no" name="ownersPan" :rules="[]">
-        <a-input v-model:value="formState.ownersPan" />
+        <a-input v-model:value="formState.ownersPan" aria-label="Please enter Owner's PAN no"/>
       </a-form-item>
       <a-form-item
         label="Duration"
         name="duration"
-        :rules="[{ required: true, message: 'Select the Duration!' }]"
+        :rules="[{ required: true, message: 'Please select the Duration!' }]"
       >
-        <a-range-picker v-model:value="formState.duration" picker="month" />
+        <a-range-picker v-model:value="formState.duration" picker="month" aria-label="Please select the Duration!" />
       </a-form-item>
 
       <a-form-item
         label="Your Email Id"
         name="userEmail"
-        :rules="[{ required: false, message: 'Please enter Email Id!' }]"
+        :rules="[{ required: false, message: 'Please enter your Email Id!' }]"
       >
-        <a-input v-model:value="formState.userEmail" />
+        <a-input v-model:value="formState.userEmail" aria-label="Please enter your Email Id!" />
       </a-form-item>
 
       <a-form-item name="generateType" label="Generate Receipt">
-        <a-radio-group v-model:value="formState.generateType">
+        <a-radio-group v-model:value="formState.generateType" aria-label="Select Receipt Type Single or Receipt per Month">
           <a-radio value="SINGLE">Single</a-radio>
           <a-radio value="RECEIPT_PER_MONTH">Receipt per Month</a-radio>
         </a-radio-group>
@@ -82,6 +83,7 @@
           list-type="fileList"
           :before-upload="beforeUpload"
           @remove="handleRemove"
+          aria-label="Please select Owner's Signature File"
         >
           <a-button class="file-upload-btn">
             <template #icon><UploadOutlined /></template>
