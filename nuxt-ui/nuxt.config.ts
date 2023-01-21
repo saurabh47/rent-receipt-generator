@@ -14,5 +14,8 @@ export default defineNuxtConfig({
         public: {
             apiBase: '/api',
         }
-    }
+    },
+    modules: [
+        '@nuxtjs/robots'
+    ]
 })

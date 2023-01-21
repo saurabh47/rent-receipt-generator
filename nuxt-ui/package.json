@@ -13,5 +13,8 @@
     "core-js": "^3.8.3",
     "moment": "^2.29.4",
     "nuxt": "^3.0.0"
+  },
+  "dependencies": {
+    "@nuxtjs/robots": "^3.0.0"
   }
 }
