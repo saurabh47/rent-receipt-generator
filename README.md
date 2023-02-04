@@ -1,4 +1,5 @@
 # [Rent Receipt Generator](https://rent-receipt-generator.finwis.tech)
+# This Repository Moved [here](https://github.com/finwis/rent-receipt-generator)
 
 ![image](https://user-images.githubusercontent.com/15173289/212826602-4cee9e5e-65dc-43a6-9433-1edbc1db5016.png)
 
