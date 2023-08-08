@@ -8,5 +8,3 @@
 
 ## Architecture
 ![image](https://user-images.githubusercontent.com/15173289/212826826-84e93322-9072-4459-b53f-88f3d9ced7fb.png)
-
-https://excalidraw.com/#room=4097e82669a041ad2b57,TfY1zR90zHhHFnKBloyCpQ
